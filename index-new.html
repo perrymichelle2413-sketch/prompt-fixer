@@ -1,0 +1,133 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Prompt Fixer</title>
+
+<style>
+
+body{margin:0;padding:24px;background:#101018;color:#f5f4fb;font:16px Arial,sans-serif}
+
+main{max-width:650px;margin:40px auto;background:#191925;padding:24px;border-radius:18px}
+
+h1{color:#c4b5fd}p{color:#b9b7ca}
+
+textarea,select,button{box-sizing:border-box;width:100%;padding:14px;margin:10px 0;border-radius:10px;font-size:16px}
+
+textarea,select{background:#101018;color:white;border:1px solid #444}
+
+textarea{height:160px}
+
+button{background:#b9a5ff;color:#171020;font-weight:bold;border:0}
+
+#result{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+
+</style>
+
+</head>
+
+<body>
+
+<main>
+
+<h1>✦ Prompt Fixer</h1>
+
+<p>Turn your rough idea into a clearer coding prompt.</p>
+
+<label for="idea">What do you want to build or fix?</label>
+
+<textarea id="idea" placeholder="Example: My app's button does nothing..."></textarea>
+
+<label for="tool">Which coding tool do you use?</label>
+
+<select id="tool">
+
+<option>Lovable</option>
+
+<option>Bolt</option>
+
+<option>Replit</option>
+
+<option>Cursor</option>
+
+<option>Other AI coding tool</option>
+
+</select>
+
+<button id="fix">Improve My Prompt</button>
+
+<p id="status" role="status"></p>
+
+<div id="result"></div>
+
+<button id="copy" hidden>Copy Improved Prompt</button>
+
+</main>
+
+<script>
+
+const idea=document.getElementById('idea');
+
+const status=document.getElementById('status');
+
+const result=document.getElementById('result');
+
+const copy=document.getElementById('copy');
+
+document.getElementById('fix').addEventListener('click',()=>{
+
+ const text=idea.value.trim();
+
+ if(!text){status.textContent='Please describe what you want to build.';result.textContent='';copy.hidden=true;return;}
+
+ const tool=document.getElementById('tool').value;
+
+ result.textContent=
+
+ 'Act as an experienced software developer using '+tool+'.\n\n'+
+
+ 'GOAL\n'+text+'\n\n'+
+
+ 'INSTRUCTIONS\n'+
+
+ '1. Inspect the existing project before changing code.\n'+
+
+ '2. Identify the relevant files and make the smallest complete change.\n'+
+
+ '3. Preserve existing features and the current design unless asked otherwise.\n'+
+
+ '4. Handle errors and important edge cases.\n'+
+
+ '5. Test the change and fix any issues found.\n\n'+
+
+ 'SUCCESS CRITERIA\n'+
+
+ 'The requested behavior works as described, unrelated features still work, and you summarize the changes and tests performed.';
+
+ status.textContent='Your improved prompt is ready!';
+
+ copy.hidden=false;
+
+});
+
+copy.addEventListener('click',async()=>{
+
+ try{await navigator.clipboard.writeText(result.textContent);status.textContent='Copied!';}
+
+ catch(e){status.textContent='Select and copy the prompt above.';}
+
+});
+
+</script>
+
+</body>
+
+</html>
