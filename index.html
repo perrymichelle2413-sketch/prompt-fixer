@@ -51,7 +51,7 @@ const raw=$('#raw').value.trim();if(!raw){$('#raw').focus();return}
 const btn=$('#generate');btn.disabled=true;btn.innerHTML='✧ Improving your prompt…';$('#notice').classList.remove('show');
 try{
 const res=await fetch('/api/fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:raw,tool:$('#tool').value,mode,detail:$('#detail').value})});
-if(res.ok){const data=await res.json();$('#output').textContent=data.prompt.replace(/\\n/g, '\n');$('#notice').textContent=data.note||'AI-powered prompt generated.';$('#notice').classList.add('show')}
+if(res.ok){const data=await res.json();$('#output').textContent=data.prompt;$('#notice').textContent=data.note||'AI-powered prompt generated.';$('#notice').classList.add('show')}
 else throw new Error('API unavailable');
 });
 $('#copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#output').textContent);$('#copy').textContent='Copied ✓';setTimeout(()=>$('#copy').textContent='Copy prompt',1400)}catch(e){const r=document.createRange();r.selectNodeContents($('#output'));const s=window.getSelection();s.removeAllRanges();s.addRange(r);$('#copy').textContent='Select and copy'}});
