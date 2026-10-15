@@ -51,8 +51,7 @@ const raw=$('#raw').value.trim();if(!raw){$('#raw').focus();return}
 const btn=$('#generate');btn.disabled=true;btn.innerHTML='✧ Improving your prompt…';$('#notice').classList.remove('show');
 try{
 const res=await fetch('/api/fix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:raw,tool:$('#tool').value,mode,detail:$('#detail').value})});
-if(res.ok){const data=await res.json();$(’#output’).textContent=data.prompt.replace(/\n/g,’\n’);$(’#notice’).textContent=data.note||‘AI-powered prompt generated.’;$(’#notice’).classList.add(‘show’)}
-else throw new Error(‘API unavailable’);
+}catch(e){$('#output').textContent=localPrompt(raw,$('#tool').value,$('#detail').value);$('#notice').textContent='Preview mode: this structured template runs locally. Add an OpenAI API key to enable AI-powered rewriting.';$('#notice').classList.add('show')}
 }catch(e){$('#output').textContent=localPrompt(raw,$('#tool').value,$('#detail').value);$('#notice').textContent='Preview mode: this structured template runs locally. Add an OpenAI API key to enable AI-powered rewriting.';$('#notice').classList.add('show')}
 $('#result').classList.add('show');btn.disabled=false;btn.innerHTML='✧ Fix my prompt <span>→</span>';$('#result').scrollIntoView({behavior:'smooth',block:'nearest'});
 });
