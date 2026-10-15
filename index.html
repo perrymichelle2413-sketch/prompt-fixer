@@ -98,6 +98,8 @@ ${detail==='concise'
 :'SUCCESS CRITERIA\n- The request works as described.\n- Existing unrelated functionality remains intact.\n- Relevant checks are performed.\n\nDELIVERABLE\nSummarize what changed and any remaining limitations.'}`;
 
     output.textContent=prompt;
+    output.style.display='block';
+output.style.minHeight='100px';
     $('#result').classList.add('show');
     notice.textContent='Your improved prompt is ready! This version works without paid API credits.';
     console.log('Generated prompt:', output.textContent);
