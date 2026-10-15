@@ -46,46 +46,68 @@ const kind={feature:'Implement a new feature',bug:'Investigate and fix a bug',im
 let s=`ROLE\nYou are an experienced software engineer working in ${tool}.\n\nOBJECTIVE\n${raw.trim()}\n\nWORKING RULES\n- First inspect the relevant existing code, components, data models, and conventions before making changes.\n- Make the smallest complete change that solves the request. Reuse the project's existing patterns and dependencies where possible.\n- Preserve existing functionality, visual design, routes, and data unless the request explicitly calls for a change.\n- Do not invent requirements or silently make unrelated changes. If a critical detail is missing, state the assumption or ask a focused question.\n- Explain which files or areas you changed and why.\n\n${mode==='bug'?'DEBUGGING PROCESS\\n- Reproduce or trace the issue before changing code.\\n- Identify the likely root cause and explain the evidence.\\n- Check related edge cases and avoid hiding the error without fixing its cause.\\n\\n':mode==='improve'?'IMPROVEMENT PROCESS\\n- Assess the current implementation before editing.\\n- Keep the existing architecture unless a change is necessary and justified.\\n- Check responsive behavior and accessibility where relevant.\\n\\n':'IMPLEMENTATION PROCESS\\n- Break the work into logical steps and implement the complete user-facing flow.\\n- Include loading, empty, success, and error states where relevant.\\n- Validate inputs and handle failure cases.\\n\\n'}${detail==='concise'?'DELIVERABLE\\nImplement the request, run the relevant checks, and summarize the changes and any remaining limitations.':detail==='detailed'?'ACCEPTANCE CRITERIA\\n- The requested behavior works end to end.\\n- Existing unrelated functionality remains intact.\\n- Relevant validation, error states, and responsive behavior are handled.\\n- Run available tests or checks and report their results honestly.\\n\\nDELIVERABLE\\nImplement the change, list files modified, explain important decisions, report tests run and results, and identify any remaining limitations.':'SUCCESS CRITERIA\\n- The requested behavior works as described.\\n- Existing unrelated functionality remains intact.\\n- Relevant edge cases are handled and available checks are run.\\n\\nDELIVERABLE\\nImplement the change and briefly summarize what changed, tests run, and anything still needed.'}`;
 return s;
 }
-
-$('#generate').addEventListener('click',async()=>{
+$('#generate').addEventListener('click',()=>{
   const raw=$('#raw').value.trim();
+  const btn=$('#generate');
+  const notice=$('#notice');
+  const output=$('#output');
+
   if(!raw){
+    notice.textContent='Please enter a prompt first.';
+    notice.classList.add('show');
     $('#raw').focus();
-    $('#notice').textContent='Please enter a prompt first.';
-    $('#notice').classList.add('show');
     return;
   }
 
-  const btn=$('#generate');
   btn.disabled=true;
   btn.textContent='✧ Improving your prompt…';
-  $('#notice').classList.remove('show');
+  notice.classList.remove('show');
 
   try{
-    const res=await fetch('/api/fix',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        prompt:raw,
-        tool:$('#tool').value,
-        mode,
-        detail:$('#detail').value
-      })
-    });
+    const tool=$('#tool').value;
+    const detail=$('#detail').value;
+    const kind={
+      feature:'BUILD A FEATURE',
+      bug:'DEBUG AND FIX',
+      improve:'IMPROVE THE EXISTING APP'
+    }[mode]||'CODING TASK';
 
-    const data=await res.json();
-    if(!res.ok) throw new Error(data.error||data.message||'API request failed.');
+    const prompt=
+`ROLE
+Act as an experienced software developer using ${tool}.
 
-    $('#output').textContent=data.prompt;
-    $('#notice').textContent=data.note||'AI-powered prompt generated.';
-    $('#notice').classList.add('show');
+TASK TYPE
+${kind}
+
+MY REQUEST
+${raw}
+
+IMPLEMENTATION GUIDELINES
+- Inspect the existing project and relevant files before making changes.
+- Identify the cause or requirements before editing code.
+- Make the smallest complete change that solves the request.
+- Preserve existing features, design, and behavior unless the request requires otherwise.
+- Reuse existing project patterns and dependencies.
+- Handle relevant errors and edge cases.
+- Do not claim tests passed unless they were actually run.
+
+${detail==='concise'
+?'DELIVERABLE\nImplement the request and briefly summarize the changes.'
+:detail==='detailed'
+?'ACCEPTANCE CRITERIA\n- The requested behavior works end to end.\n- Existing unrelated features remain intact.\n- Relevant error and edge cases are handled.\n- Available checks are run and results reported honestly.\n\nDELIVERABLE\nList files changed, explain important decisions, and report tests and remaining limitations.'
+:'SUCCESS CRITERIA\n- The request works as described.\n- Existing unrelated functionality remains intact.\n- Relevant checks are performed.\n\nDELIVERABLE\nSummarize what changed and any remaining limitations.'}`;
+
+    output.textContent=prompt;
+    notice.textContent='Your improved prompt is ready! This version works without paid API credits.';
+    notice.classList.add('show');
   }catch(e){
-    $('#notice').textContent='Could not improve prompt: '+e.message;
-    $('#notice').classList.add('show');
+    notice.textContent='Could not create prompt: '+e.message;
+    notice.classList.add('show');
   }finally{
     btn.disabled=false;
     btn.textContent='✧ Fix my prompt';
   }
 });
+
 $('#copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#output').textContent);$('#copy').textContent='Copied ✓';setTimeout(()=>$('#copy').textContent='Copy prompt',1400)}catch(e){const r=document.createRange();r.selectNodeContents($('#output'));const s=window.getSelection();s.removeAllRanges();s.addRange(r);$('#copy').textContent='Select and copy'}});
 </script></body></html>
